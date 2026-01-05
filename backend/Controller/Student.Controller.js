@@ -35,19 +35,19 @@ const RegisterStudent = async (req, res) => {
   }
   try {
     const Student = await pool.query(
-    "INSERT INTO students (first_name,last_name,gender,dob,email,mobile,address,admission_date,status,class_id) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *",
-    [
-      first_name,
-      last_name,
-      gender,
-      dob,
-      email,
-      mobile,
-      address,
-      admission_date,
-      status,
-      class_id,
-    ]
+      "INSERT INTO students (first_name,last_name,gender,dob,email,mobile,address,admission_date,status,class_id) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *",
+      [
+        first_name,
+        last_name,
+        gender,
+        dob,
+        email,
+        mobile,
+        address,
+        admission_date,
+        status,
+        class_id,
+      ]
     );
 
     // Check result
