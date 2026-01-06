@@ -2,17 +2,17 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 const API = axios.create({
-  baseURL: `${import.meta.env.VITE_API_URL}/api/admin`,
+  baseURL: `${import.meta.env.VITE_API_URL}/api/`,
 });
 export const adminLoginAPI = async (payload) => {
   console.log(payload);
   try {
-    const res = await API.post("/login", payload);
+    const res = await API.post("admin/login", payload);
 
     if (res.data.success) {
       return true;
     }
-    toast.error(res.data.message || "Invalid credentials");
+    toast.error(res.data.message);
     return false;
   } catch (error) {
     const message =
@@ -24,3 +24,24 @@ export const adminLoginAPI = async (payload) => {
     return false;
   }
 };
+
+export const registerStudentAPI = async (payload) => {
+  try {
+    const res = await API.post('Student/create', payload);
+    if (res.data.success) {
+      toast.success(res.data.message);
+      return true;
+    } else {
+      toast.error(res.data.message);
+      return false;
+    }
+  } catch (error) {
+    const message =
+      error?.response?.data?.message ||
+      error?.message ||
+      "Student can not be created";
+
+    toast.error(message);
+    return false;
+  }
+}

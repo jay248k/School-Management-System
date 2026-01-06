@@ -16,7 +16,6 @@ const RegisterStudent = async (req, res) => {
     last_name,
     gender,
     dob,
-    email,
     mobile,
     address,
     admission_date,
