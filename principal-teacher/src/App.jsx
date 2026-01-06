@@ -1,8 +1,7 @@
-import React from "react"; // ← Add this
+import React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Login from "./components/auth/Login";
-import PrincipalDashboard from "./components/auth/principal/PrincipalDashboard";
-
+import PrincipalDashboard from "./components/principal/PrincipalDashboard";
 const router = createBrowserRouter([
   {
     path: "/",
