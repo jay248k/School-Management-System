@@ -7,16 +7,22 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import TeacherRouter from './Router/Teacher.Route.js';
 const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
-app.use(cors({
+const corsOptions = {
     origin: (origin, callback) => {
         if (!origin) return callback(null, true);
         callback(null, origin);
     },
-    credentials: true
-}));
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+};
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
+
+
 app.use("/api/Student", StudentRouter);
 app.use("/api/fees", FeesRouter);
 app.use("/api/admin", AdminRouter);
