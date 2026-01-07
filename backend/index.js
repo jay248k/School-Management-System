@@ -6,18 +6,26 @@ import AdminRouter from './Router/Admin.Route.js';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import TeacherRouter from './Router/Teacher.Route.js';
-const app=express();
+const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(cors());
-app.use("/api/Student",StudentRouter);
-app.use("/api/fees",FeesRouter);
-app.use("/api/admin",AdminRouter);
-app.use("/api/teacher",TeacherRouter);
+app.use(
+    cors({
+        origin: (origin, callback) => {
+            if (!origin) return callback(null, true);
+            callback(null, true);
+        },
+        credentials: true,
+    })
+);
+app.use("/api/Student", StudentRouter);
+app.use("/api/fees", FeesRouter);
+app.use("/api/admin", AdminRouter);
+app.use("/api/teacher", TeacherRouter);
 
-const port=5000;
+const port = 5000;
 
-app.listen(port,()=>{
+app.listen(port, () => {
     console.log(`http://localhost:${port}`);
 })
