@@ -4,7 +4,6 @@ import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 dotenv.config();
 const RegisterStudent = async (req, res) => {
-  // Protect against undefined req.body
   if (!req.body || Object.keys(req.body).length === 0) {
     return res
       .status(400)
@@ -16,6 +15,7 @@ const RegisterStudent = async (req, res) => {
     last_name,
     gender,
     dob,
+    father_name,
     mobile,
     address,
     admission_date,
@@ -23,11 +23,11 @@ const RegisterStudent = async (req, res) => {
     class_id,
     password,
   } = req.body;
-  // Basic validation for required fields
   if (
     !first_name ||
     !last_name ||
     !gender ||
+    !father_name||
     !dob ||
     !mobile ||
     !address ||
@@ -38,16 +38,17 @@ const RegisterStudent = async (req, res) => {
   ) {
     return res
       .status(400)
-      .json({ success: false, message: "Some required details are missing" });
+      .json({ success: false, message: "Please provide all required student details" });
   }
   try {
     const selt = await bcrypt.genSalt(10);
     const secPassword = await bcrypt.hash(password, selt);
     const Student = await pool.query(
-      "INSERT INTO students (first_name,last_name,gender,dob,mobile,address,admission_date,status,class_id,password) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *",
+      "INSERT INTO students (first_name,last_name,father_name,gender,dob,mobile,address,admission_date,status,class_id,password) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *",
       [
         first_name,
         last_name,
+        father_name,
         gender,
         dob,
         mobile,
@@ -59,14 +60,12 @@ const RegisterStudent = async (req, res) => {
       ]
     );
     const sDetails = Student.rows[0];
-    console.log(sDetails.student_id);
-    // Check result
     if (!Student || !Student.rows || Student.rows.length === 0) {
       return res
         .status(500)
         .json({ success: false, message: "Failed to create student" });
     }
-    const token = await jwt.sign(
+    const token =  jwt.sign(
       {
         student_id: sDetails.student_id,
         role: "student",
@@ -132,4 +131,70 @@ const StudLogin = async (req, res) => {
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
-export { RegisterStudent, StudLogin };
+const UpdateStudent=async(req,res)=>{
+  const {first_name,
+        last_name,
+        gender,
+        dob,
+        mobile,
+        address,
+        admission_date,
+        status,
+        class_id}=req.body;
+  const {id}=req.params;
+  if (
+    !first_name ||
+    !last_name ||
+    !gender ||
+    !dob ||
+    !mobile ||
+    !address ||
+    !admission_date ||
+    !status ||
+    !class_id 
+  ) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Some required details are missing" });
+  }
+  try {
+    const Update=await pool.query("UPDATE students SET first_name=$1,last_name=$2,gender=$3,dob=$4,mobile=$5,address=$6,admission_date=$7,status=$8,class_id=$9 WHERE student_id=$10",[
+    first_name,
+        last_name,
+        gender,
+        dob,
+        mobile,
+        address,
+        admission_date,
+        status,
+        class_id,
+        id
+  ])
+  if(Update.rowCount===0){
+    return res.status(401).json({success:false,message:"Update error"})
+  }
+  res.status(200).json({success:true,message:"updated successfully"});
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({success:false,message:"Internal server error"})
+  }
+  
+}
+const DeleteStudent=async(req,res)=>{
+  const {id}=req.params;
+  if(!id){
+    res.status(401).json({success:false,message:"Id must required"})
+  }
+  try {
+    const Delete=await pool.query("DELETE FROM students WHERE student_id=$1",[id])
+  if(Delete.rowCount===0){
+    res.status(401).json({success:false,message:"can't delete"})
+  }
+  res.status(200).json({success:true,message:"Student Deleted"})
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({success:false,message:"Internal server error"})
+  }
+  
+}
+export { RegisterStudent, StudLogin,UpdateStudent,DeleteStudent };

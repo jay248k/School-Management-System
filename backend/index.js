@@ -5,6 +5,7 @@ import FeesRouter from './Router/Fees.Route.js';
 import AdminRouter from './Router/Admin.Route.js';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
+import TeacherRouter from './Router/Teacher.Route.js';
 const app=express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -13,6 +14,7 @@ app.use(cors());
 app.use("/api/Student",StudentRouter);
 app.use("/api/fees",FeesRouter);
 app.use("/api/admin",AdminRouter);
+app.use("/api/teacher",TeacherRouter);
 
 const port=5000;
 
