@@ -20,6 +20,19 @@ const RegisterStudent = async (req, res) => {
       .status(400)
       .json({ success: false, message: "Request body is empty" });
   }
+  console.log({
+    first_name,
+    last_name,
+    father_name,
+    gender,
+    dob,
+    mobile,
+    address,
+    admission_date,
+    status,
+    class_number,
+    password,
+  });
 
   const {
     first_name,
