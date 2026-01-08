@@ -15,7 +15,6 @@ const AddTeacher = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // Mobile number validation
     if (name === "mobile") {
       if (!/^\d*$/.test(value)) return;
 
