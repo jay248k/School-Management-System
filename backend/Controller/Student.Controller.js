@@ -3,6 +3,17 @@ import pool from "../utils/db.js";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 dotenv.config();
+const getSection = (first_name) => {
+  const firstChar = first_name.trim().charAt(0).toUpperCase();
+
+  if ("ABCDEF".includes(firstChar)) return "A";
+  if ("GHIJKL".includes(firstChar)) return "B";
+  if ("MNOPQR".includes(firstChar)) return "C";
+  if ("STUVWXYZ".includes(firstChar)) return "D";
+
+  return "D"; // default fallback
+};
+
 const RegisterStudent = async (req, res) => {
   if (!req.body || Object.keys(req.body).length === 0) {
     return res
@@ -20,7 +31,7 @@ const RegisterStudent = async (req, res) => {
     address,
     admission_date,
     status,
-    class_id,
+    class_number,
     password,
   } = req.body;
   if (
@@ -33,7 +44,7 @@ const RegisterStudent = async (req, res) => {
     !address ||
     !admission_date ||
     !status ||
-    !class_id ||
+    !class_number ||
     !password
   ) {
     return res
@@ -41,10 +52,25 @@ const RegisterStudent = async (req, res) => {
       .json({ success: false, message: "Please provide all required student details" });
   }
   try {
+    const classResult = await pool.query(
+      "SELECT class_id FROM classes WHERE class_name = $1",
+      [class_number]
+    );
+
+    if (classResult.rows.length === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Class not found" });
+    }
+
+    const class_id = classResult.rows[0].class_id;
+
+    const section = getSection(first_name);
+    
     const selt = await bcrypt.genSalt(10);
     const secPassword = await bcrypt.hash(password, selt);
     const Student = await pool.query(
-      "INSERT INTO students (first_name,last_name,father_name,gender,dob,mobile,address,admission_date,status,class_id,password) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *",
+      "INSERT INTO students (first_name,last_name,father_name,gender,dob,mobile,address,admission_date,status,class_id,password,section) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING *",
       [
         first_name,
         last_name,
@@ -57,6 +83,7 @@ const RegisterStudent = async (req, res) => {
         status,
         class_id,
         secPassword,
+        section
       ]
     );
     const sDetails = Student.rows[0];
@@ -111,7 +138,7 @@ const StudLogin = async (req, res) => {
         .status(401)
         .json({ success: false, message: "Invalid sid or password" });
     }
-    const token = await jwt.sign(
+    const token = jwt.sign(
       {
         student_id: Details.student_id,
         role: "student",
