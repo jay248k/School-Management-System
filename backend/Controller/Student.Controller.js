@@ -38,7 +38,7 @@ const RegisterStudent = async (req, res) => {
     !first_name ||
     !last_name ||
     !gender ||
-    !father_name||
+    !father_name ||
     !dob ||
     !mobile ||
     !address ||
@@ -66,7 +66,7 @@ const RegisterStudent = async (req, res) => {
     const class_id = classResult.rows[0].class_id;
 
     const section = getSection(first_name);
-    
+
     const selt = await bcrypt.genSalt(10);
     const secPassword = await bcrypt.hash(password, selt);
     const Student = await pool.query(
@@ -92,20 +92,6 @@ const RegisterStudent = async (req, res) => {
         .status(500)
         .json({ success: false, message: "Failed to create student" });
     }
-    const token =  jwt.sign(
-      {
-        student_id: sDetails.student_id,
-        role: "student",
-        class_id: sDetails.class_id,
-      },
-      process.env.SEC
-    );
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      maxAge: 24 * 60 * 60 * 1000,
-    });
     return res.status(201).json({ success: true, message: "Student created!" });
   } catch (err) {
     console.error("RegisterStudent error:", err?.message || err);
@@ -158,17 +144,17 @@ const StudLogin = async (req, res) => {
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
-const UpdateStudent=async(req,res)=>{
-  const {first_name,
-        last_name,
-        gender,
-        dob,
-        mobile,
-        address,
-        admission_date,
-        status,
-        class_id}=req.body;
-  const {id}=req.params;
+const UpdateStudent = async (req, res) => {
+  const { first_name,
+    last_name,
+    gender,
+    dob,
+    mobile,
+    address,
+    admission_date,
+    status,
+    class_id } = req.body;
+  const { id } = req.params;
   if (
     !first_name ||
     !last_name ||
@@ -178,50 +164,50 @@ const UpdateStudent=async(req,res)=>{
     !address ||
     !admission_date ||
     !status ||
-    !class_id 
+    !class_id
   ) {
     return res
       .status(400)
       .json({ success: false, message: "Some required details are missing" });
   }
   try {
-    const Update=await pool.query("UPDATE students SET first_name=$1,last_name=$2,gender=$3,dob=$4,mobile=$5,address=$6,admission_date=$7,status=$8,class_id=$9 WHERE student_id=$10",[
-    first_name,
-        last_name,
-        gender,
-        dob,
-        mobile,
-        address,
-        admission_date,
-        status,
-        class_id,
-        id
-  ])
-  if(Update.rowCount===0){
-    return res.status(401).json({success:false,message:"Update error"})
-  }
-  res.status(200).json({success:true,message:"updated successfully"});
+    const Update = await pool.query("UPDATE students SET first_name=$1,last_name=$2,gender=$3,dob=$4,mobile=$5,address=$6,admission_date=$7,status=$8,class_id=$9 WHERE student_id=$10", [
+      first_name,
+      last_name,
+      gender,
+      dob,
+      mobile,
+      address,
+      admission_date,
+      status,
+      class_id,
+      id
+    ])
+    if (Update.rowCount === 0) {
+      return res.status(401).json({ success: false, message: "Update error" })
+    }
+    res.status(200).json({ success: true, message: "updated successfully" });
   } catch (error) {
     console.log(error);
-    res.status(500).json({success:false,message:"Internal server error"})
+    res.status(500).json({ success: false, message: "Internal server error" })
   }
-  
+
 }
-const DeleteStudent=async(req,res)=>{
-  const {id}=req.params;
-  if(!id){
-    res.status(401).json({success:false,message:"Id must required"})
+const DeleteStudent = async (req, res) => {
+  const { id } = req.params;
+  if (!id) {
+    res.status(401).json({ success: false, message: "Id must required" })
   }
   try {
-    const Delete=await pool.query("DELETE FROM students WHERE student_id=$1",[id])
-  if(Delete.rowCount===0){
-    res.status(401).json({success:false,message:"can't delete"})
-  }
-  res.status(200).json({success:true,message:"Student Deleted"})
+    const Delete = await pool.query("DELETE FROM students WHERE student_id=$1", [id])
+    if (Delete.rowCount === 0) {
+      res.status(401).json({ success: false, message: "can't delete" })
+    }
+    res.status(200).json({ success: true, message: "Student Deleted" })
   } catch (error) {
     console.log(error);
-    res.status(500).json({success:false,message:"Internal server error"})
+    res.status(500).json({ success: false, message: "Internal server error" })
   }
-  
+
 }
-export { RegisterStudent, StudLogin,UpdateStudent,DeleteStudent };
+export { RegisterStudent, StudLogin, UpdateStudent, DeleteStudent };

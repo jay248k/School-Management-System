@@ -1,9 +1,10 @@
 import React, { useState } from "react";
+import { registerStudentAPI } from "../../../services/admin.api";
 
 const AddStudent = () => {
   const [formData, setFormData] = useState({
     first_name: "",
-    surname: "",
+    last_name: "",
     father_name: "",
     gender: "M",
     dob: "",
@@ -11,8 +12,7 @@ const AddStudent = () => {
     address: "",
     admission_date: "",
     status: "Active",
-    class_id: "",
-    division: "A",
+    class_number: "",
     password: "",
   });
 
@@ -20,13 +20,12 @@ const AddStudent = () => {
     "Nursery",
     "Pre-K",
     "Kindergarten",
-    ...Array.from({ length: 12 }, (_, i) => `${i + 1} Grade`),
+    ...Array.from({ length: 12 }, (_, i) => `${i + 1}`),
   ];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // Mobile: only digits & max 10
     if (name === "mobile") {
       if (!/^\d*$/.test(value)) return;
       if (value.length > 10) return;
@@ -35,139 +34,158 @@ const AddStudent = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (formData.mobile.length !== 10) {
-      alert("Mobile number must be exactly 10 digits");
+      alert("Mobile number must be 10 digits");
       return;
     }
 
-    console.log("Student Data:", formData);
+    const res = await registerStudentAPI(formData);
+    if (res) {
+      setFormData({
+        first_name: "",
+        last_name: "",
+        father_name: "",
+        gender: "M",
+        dob: "",
+        mobile: "",
+        address: "",
+        admission_date: "",
+        status: "Active",
+        class_number: "",
+        password: "",
+      });
+    }
   };
+  const inputClass =
+    "w-full border border-gray-300 rounded-lg px-5 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
+
+  const labelClass = "text-base font-medium text-gray-700";
 
   return (
-    <div className="bg-white shadow-lg rounded-xl p-10 max-w-5xl mx-auto">
-      <h2 className="text-3xl font-semibold text-gray-800 mb-8">
+    <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-200 p-10">
+      <h2 className="text-3xl font-semibold text-gray-800 mb-2">
         Add New Student
       </h2>
+      <p className="text-base text-gray-500 mb-8">
+        Fill in the student details carefully
+      </p>
 
-      <form onSubmit={handleSubmit} className="space-y-6 text-lg">
+      <form onSubmit={handleSubmit} className="space-y-6">
         {/* Name Section */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-3 gap-5">
           <div>
-            <label className="block mb-2 font-medium">First Name</label>
+            <label className={labelClass}>First Name</label>
             <input
-              type="text"
               name="first_name"
               value={formData.first_name}
               onChange={handleChange}
               required
-              className="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-400 outline-none"
+              className={inputClass}
             />
           </div>
           <div>
-            <label className="block mb-2 font-medium">Surname</label>
+            <label className={labelClass}>Last Name</label>
             <input
-              type="text"
-              name="surname"
-              value={formData.surname}
+              name="last_name"
+              value={formData.last_name}
               onChange={handleChange}
               required
-              className="w-full border rounded-lg px-4 py-3"
+              className={inputClass}
             />
           </div>
           <div>
-            <label className="block mb-2 font-medium">Father Name</label>
+            <label className={labelClass}>Father Name</label>
             <input
-              type="text"
               name="father_name"
               value={formData.father_name}
               onChange={handleChange}
               required
-              className="w-full border rounded-lg px-4 py-3"
+              className={inputClass}
             />
           </div>
         </div>
 
         {/* Gender & DOB */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-2 gap-5">
           <div>
-            <label className="block mb-2 font-medium">Gender</label>
+            <label className={labelClass}>Gender</label>
             <select
               name="gender"
               value={formData.gender}
               onChange={handleChange}
-              className="w-full border rounded-lg px-4 py-3"
+              className={inputClass}
             >
               <option value="M">Male</option>
               <option value="F">Female</option>
               <option value="O">Other</option>
             </select>
           </div>
+
           <div>
-            <label className="block mb-2 font-medium">Date of Birth</label>
+            <label className={labelClass}>Date of Birth</label>
             <input
               type="date"
               name="dob"
               value={formData.dob}
               onChange={handleChange}
               required
-              className="w-full border rounded-lg px-4 py-3"
+              className={inputClass}
             />
           </div>
         </div>
 
         {/* Mobile & Address */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-2 gap-5">
           <div>
-            <label className="block mb-2 font-medium">Mobile Number</label>
+            <label className={labelClass}>Mobile Number</label>
             <input
-              type="text"
               name="mobile"
               value={formData.mobile}
               onChange={handleChange}
-              placeholder="10 digit mobile number"
               required
-              className="w-full border rounded-lg px-4 py-3"
+              className={inputClass}
             />
-            <p className="text-sm text-gray-500 mt-1">
-              Mobile number must be 10 digits
+            <p className="text-sm text-gray-400 mt-1">
+              Enter 10 digit mobile number
             </p>
           </div>
+
           <div>
-            <label className="block mb-2 font-medium">Address</label>
+            <label className={labelClass}>Address</label>
             <input
-              type="text"
               name="address"
               value={formData.address}
               onChange={handleChange}
               required
-              className="w-full border rounded-lg px-4 py-3"
+              className={inputClass}
             />
           </div>
         </div>
 
         {/* Admission & Status */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-2 gap-5">
           <div>
-            <label className="block mb-2 font-medium">Admission Date</label>
+            <label className={labelClass}>Admission Date</label>
             <input
               type="date"
               name="admission_date"
               value={formData.admission_date}
               onChange={handleChange}
               required
-              className="w-full border rounded-lg px-4 py-3"
+              className={inputClass}
             />
           </div>
+
           <div>
-            <label className="block mb-2 font-medium">Status</label>
+            <label className={labelClass}>Status</label>
             <select
               name="status"
               value={formData.status}
               onChange={handleChange}
-              className="w-full border rounded-lg px-4 py-3"
+              className={inputClass}
             >
               <option value="Active">Active</option>
               <option value="Inactive">Inactive</option>
@@ -175,16 +193,16 @@ const AddStudent = () => {
           </div>
         </div>
 
-        {/* Class & Division */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Class & Password */}
+        <div className="grid md:grid-cols-2 gap-5">
           <div>
-            <label className="block mb-2 font-medium">Class</label>
+            <label className={labelClass}>Class</label>
             <select
-              name="class_id"
-              value={formData.class_id}
+              name="class_number"
+              value={formData.class_number}
               onChange={handleChange}
               required
-              className="w-full border rounded-lg px-4 py-3"
+              className={inputClass}
             >
               <option value="">Select Class</option>
               {classes.map((cls) => (
@@ -194,38 +212,25 @@ const AddStudent = () => {
               ))}
             </select>
           </div>
+
           <div>
-            <label className="block mb-2 font-medium">Division</label>
-            <select
-              name="division"
-              value={formData.division}
+            <label className={labelClass}>Password</label>
+            <input
+              type="password"
+              name="password"
+              value={formData.password}
               onChange={handleChange}
-              className="w-full border rounded-lg px-4 py-3"
-            >
-              <option value="A">A</option>
-              <option value="B">B</option>
-            </select>
+              required
+              className={inputClass}
+            />
           </div>
         </div>
 
-        {/* Password */}
-        <div>
-          <label className="block mb-2 font-medium">Password</label>
-          <input
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-            className="w-full border rounded-lg px-4 py-3"
-          />
-        </div>
-
         {/* Submit */}
-        <div className="pt-6">
+        <div className="pt-4 flex justify-end">
           <button
             type="submit"
-            className="bg-blue-600 text-white text-lg px-12 py-3 rounded-lg hover:bg-blue-700 transition"
+            className="bg-blue-600 text-white px-12 py-3 rounded-lg text-base font-medium hover:bg-blue-700 transition"
           >
             Save Student
           </button>
