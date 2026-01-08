@@ -53,7 +53,7 @@ const AddStudent = () => {
         mobile: "",
         address: "",
         admission_date: "",
-        status: "Active",
+        status: "active",
         class_number: "",
         password: "",
       });
@@ -187,8 +187,8 @@ const AddStudent = () => {
               onChange={handleChange}
               className={inputClass}
             >
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
             </select>
           </div>
         </div>

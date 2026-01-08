@@ -27,6 +27,7 @@ export const adminLoginAPI = async (payload) => {
 
 export const registerStudentAPI = async (payload) => {
   try {
+    console.log(payload)
     const res = await API.post('Student/create', payload);
     if (res.data.success) {
       toast.success(res.data.message);
