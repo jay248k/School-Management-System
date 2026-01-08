@@ -3,39 +3,66 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import dotenv from 'dotenv';
 dotenv.config();
+
 const AdminLogin = async (req, res) => {
   const { userName, password } = req.body;
+
   if (!userName || !password) {
-    return res.json({ success: false, message: "Missing" });
+    return res.status(400).json({
+      success: false,
+      message: "Username and password required",
+    });
   }
+
   try {
-    const result = await pool.query("SELECT * FROM ADMIN WHERE userName=$1", [
-      userName,
-    ]);
-    if (result.rowCount[0] === 0) {
-      res
-        .stauts(401)
-        .json({ success: false, message: "Invalid username or password" });
+    const result = await pool.query(
+      "SELECT * FROM admin WHERE username = $1",
+      [userName]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid username or password",
+      });
     }
+
     const admin = result.rows[0];
 
     const isMatch = await bcrypt.compare(password, admin.password);
     if (!isMatch) {
-      res
-        .status(401)
-        .json({ success: true, message: "Invalid username or password" });
+      return res.status(401).json({
+        success: false,
+        message: "Invalid username or password",
+      });
     }
-    const token = jwt.sign({ aid: admin.aid }, process.env.SEC);
+
+    const token = jwt.sign(
+      { id: admin.aid, role: "admin" },
+      process.env.SEC,
+      { expiresIn: "1d" }
+    );
+
     res.cookie("token", token, {
-      httpOnly: true,
+      httpOnly: false,
       secure: true,
       sameSite: "none",
-      maxAge: 24 * 60 * 60 * 1000
+      maxAge: 24 * 60 * 60 * 1000,
     });
-    res.status(200).json({ success: true, message: token });
+
+    return res.status(200).json({
+      success: true,
+      message: "Login successful",
+    });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ success: false, message: "Internal server error" });
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
   }
 };
+
+export default AdminLogin;
+
 export { AdminLogin };
