@@ -3,7 +3,9 @@ import { toast } from "react-toastify";
 
 const API = axios.create({
   baseURL: `${import.meta.env.VITE_API_URL}/api/`,
+  withCredentials: true
 });
+API.defaults.withCredentials = true;
 export const adminLoginAPI = async (payload) => {
   console.log(payload);
   try {
@@ -28,7 +30,7 @@ export const adminLoginAPI = async (payload) => {
 export const registerStudentAPI = async (payload) => {
   try {
     console.log(payload)
-    const res = await API.post('Student/create', payload);
+    const res = await API.post('student/create', payload);
     if (res.data.success) {
       toast.success(res.data.message);
       return true;
