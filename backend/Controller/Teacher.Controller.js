@@ -4,8 +4,8 @@ import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 dotenv.config();
 const TeacherRegistration = async (req, res) => {
-  const { name, mobile, qualification, joining_date, password } = req.body;
-  if (!name || !mobile || !qualification || !joining_date || !password) {
+  const { name, mobile,email, qualification, joining_date, password } = req.body;
+  if (!name || !mobile || !qualification || !joining_date||!email || !password) {
     return res
       .status(401)
       .json({ success: false, message: "All Details must required" });
@@ -14,8 +14,8 @@ const TeacherRegistration = async (req, res) => {
     const selt = await bcrypt.genSalt(10);
     const secPassword = await bcrypt.hash(password, selt);
     const Register = await pool.query(
-      "INSERT INTO teachers (name,mobile,qualification,joining_date,password) values($1,$2,$3,$4,$5) RETURNING *",
-      [name, mobile, qualification, joining_date, secPassword]
+      "INSERT INTO teachers (name,mobile,email,qualification,joining_date,password) values($1,$2,$3,$4,$5,$6) RETURNING *",
+      [name, mobile,email, qualification, joining_date, secPassword]
     );
     if (Register.rowCount === 0) {
       return res
@@ -49,14 +49,14 @@ const TeacherLogin = async (req, res) => {
     if(!req.body){
         return res.json({success:false,message:"Body must required"})
     }
-  const { teacher_id, password } = req.body;
-  if (!teacher_id || !password) {
+  const { email, password } = req.body;
+  if (!email || !password) {
     return res.json({ success: false, message: "Somthing details not found" });
   }
   try {
     const Teacher = await pool.query(
-      "SELECT * FROM teachers where teacher_id=$1",
-      [teacher_id]
+      "SELECT * FROM teachers where email=$1",
+      [email]
     );
     if (Teacher.rowCount === 0) {
       return res
@@ -66,12 +66,14 @@ const TeacherLogin = async (req, res) => {
 
     const isMatch = await bcrypt.compare(password, Teacher.rows[0].password);
     if (!isMatch) {
+      console.log("Teacher password not mathch")
       return res
         .status(401)
         .json({ success: false, message: "Invalid teacher id or password" });
     }
+    
     const token = jwt.sign(
-      { teacher_id: teacher_id, role: "teacher" },
+      { teacher_id: email, role: "teacher" },
       process.env.SEC
     );
     res.cookie("token", token, {
