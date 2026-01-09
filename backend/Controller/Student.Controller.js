@@ -11,7 +11,7 @@ const getSection = (first_name) => {
   if ("MNOPQR".includes(firstChar)) return "C";
   if ("STUVWXYZ".includes(firstChar)) return "D";
 
-  return "D"; // default fallback
+  return "D";
 };
 
 const RegisterStudent = async (req, res) => {
