@@ -4,8 +4,8 @@ import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 dotenv.config();
 const TeacherRegistration = async (req, res) => {
-  const { name, mobile,email, qualification, joining_date, password } = req.body;
-  if (!name || !mobile || !qualification || !joining_date||!email || !password) {
+  const { name, mobile, email, qualification, joining_date, password } = req.body;
+  if (!name || !mobile || !qualification || !joining_date || !email || !password) {
     return res
       .status(401)
       .json({ success: false, message: "All Details must required" });
@@ -15,7 +15,7 @@ const TeacherRegistration = async (req, res) => {
     const secPassword = await bcrypt.hash(password, selt);
     const Register = await pool.query(
       "INSERT INTO teachers (name,mobile,email,qualification,joining_date,password) values($1,$2,$3,$4,$5,$6) RETURNING *",
-      [name, mobile,email, qualification, joining_date, secPassword]
+      [name, mobile, email, qualification, joining_date, secPassword]
     );
     if (Register.rowCount === 0) {
       return res
@@ -46,9 +46,16 @@ const TeacherRegistration = async (req, res) => {
   }
 };
 const TeacherLogin = async (req, res) => {
-    if(!req.body){
-        return res.json({success:false,message:"Body must required"})
-    }
+  if (!req.body) {
+    return res.json({ success: false, message: "Body must required" })
+  }
+  if (!req.body || Object.keys(req.body).length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: "Request body is empty",
+    });
+  }
+
   const { email, password } = req.body;
   if (!email || !password) {
     return res.json({ success: false, message: "Somthing details not found" });
@@ -71,7 +78,7 @@ const TeacherLogin = async (req, res) => {
         .status(401)
         .json({ success: false, message: "Invalid teacher id or password" });
     }
-    
+
     const token = jwt.sign(
       { teacher_id: email, role: "teacher" },
       process.env.SEC
@@ -93,42 +100,42 @@ const TeacherLogin = async (req, res) => {
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
-const TeacherUpdate=async(req,res)=>{
-    const { name, mobile, qualification, joining_date} = req.body;
-    const {id}=req.params;
+const TeacherUpdate = async (req, res) => {
+  const { name, mobile, qualification, joining_date } = req.body;
+  const { id } = req.params;
   if (!name || !mobile || !qualification || !joining_date) {
     return res
       .status(401)
       .json({ success: false, message: "All Details must required" });
   }
   try {
-    const Update=await pool.query("UPDATE teachers SET name=$1, mobile=$2, qualification=$3, joining_date=$4 where teacher_id=$5 RETURNING *",[
-    name, mobile, qualification, joining_date,id
-  ])
-  if(Update.rowCount===0){
-    return req.status(401).json({success:false,message:"Can't Updated. Retry again!"})
-  }
-  res.json({success:true,message:"Updated successfuly"})
+    const Update = await pool.query("UPDATE teachers SET name=$1, mobile=$2, qualification=$3, joining_date=$4 where teacher_id=$5 RETURNING *", [
+      name, mobile, qualification, joining_date, id
+    ])
+    if (Update.rowCount === 0) {
+      return req.status(401).json({ success: false, message: "Can't Updated. Retry again!" })
+    }
+    res.json({ success: true, message: "Updated successfuly" })
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: "Internal server error" });
   }
-  
+
 }
-const TeacherDelete=async(req,res)=>{
-    const {id}=req.params;
-    if(!id){
-        return res.json({success:false,message:"id must required"})
+const TeacherDelete = async (req, res) => {
+  const { id } = req.params;
+  if (!id) {
+    return res.json({ success: false, message: "id must required" })
+  }
+  try {
+    const Delete = await pool.query("DELETE FROM teachers WHERE teacher_id=$1 RETURNING *", [id])
+    if (Delete.rowCount === 0) {
+      return res.status(401).json({ success: false, message: "Can't Delete" })
     }
-    try {
-        const Delete=await pool.query("DELETE FROM teachers WHERE teacher_id=$1 RETURNING *",[id])
-        if(Delete.rowCount===0){
-            return res.status(401).json({success:false,message:"Can't Delete"})
-        }
-        res.status(200).json({success:true,message:"Teacher Deleted successfully"})
-    } catch (error) {
-        console.log(error)
-        res.status(500).json({ success: false, message: "Internal server error" });
-    }
+    res.status(200).json({ success: true, message: "Teacher Deleted successfully" })
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
 }
-export { TeacherRegistration, TeacherLogin,TeacherUpdate,TeacherDelete };
+export { TeacherRegistration, TeacherLogin, TeacherUpdate, TeacherDelete };

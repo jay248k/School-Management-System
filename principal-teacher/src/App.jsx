@@ -8,6 +8,7 @@ import Login from "./components/auth/Login";
 import PrincipalDashboard from "./components/principal/PrincipalDashboard";
 import AddStudent from "./components/principal/student/AddStudent";
 import AddTeacher from "./components/principal/teacher/AddTeacher";
+import TeacherDashboard from "./components/teacher/TeacherDashboard";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -20,6 +21,10 @@ const router = createBrowserRouter([
       { path: "students/add", element: <AddStudent /> },
       { path: "teachers/add", element: <AddTeacher /> },
     ],
+  },
+  {
+    path: "/teacher",
+    element: <TeacherDashboard />,
   },
 ]);
 

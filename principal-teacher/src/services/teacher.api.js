@@ -27,3 +27,25 @@ export const addTeacherAPI = async (formData) => {
     return false;
   }
 }
+
+export const teacherLoginAPI = async (data) => {
+  console.log(data);
+  try {
+    const res = await API.post("teacher/login", data);
+    if (res.data.success) {
+      return true;
+    } else {
+      toast.error(res.data.message);
+      return false;
+    }
+  } catch (error) {
+    console.log(error);
+    const message =
+      error?.response?.data?.message ||
+      error?.message ||
+      "server can not add teacher";
+
+    toast.error(message);
+    return false;
+  }
+}

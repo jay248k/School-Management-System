@@ -1,11 +1,13 @@
 import React, { useState } from "react";
-import { adminLoginAPI } from "../../services/admin.api";
 import { useNavigate } from "react-router-dom";
+import { adminLoginAPI } from "../../services/admin.api";
+import { teacherLoginAPI } from "../../services/teacher.api";
 
 const Login = () => {
   const navigate = useNavigate();
+
   const [form, setForm] = useState({
-    userName: "",
+    identifier: "",
     password: "",
     role: "teacher",
   });
@@ -18,8 +20,23 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (form.role === "principal") {
-      const res = await adminLoginAPI(form);
+    let res = null;
+
+    if (form.role === "teacher") {
+      res = await teacherLoginAPI({
+        email: form.identifier,
+        password: form.password,
+      });
+
+      if (res) {
+        navigate("/teacher");
+      }
+    } else {
+      res = await adminLoginAPI({
+        userName: form.identifier,
+        password: form.password,
+      });
+
       if (res) {
         navigate("/principal");
       }
@@ -35,14 +52,33 @@ const Login = () => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-gray-700 mb-1">Username</label>
-            <input
-              type="text"
-              name="userName"
-              value={form.userName}
+            <label className="block text-gray-700 mb-1">Role</label>
+            <select
+              name="role"
+              value={form.role}
               onChange={handleChange}
-              placeholder="Enter your username"
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full border border-gray-300 rounded px-3 py-2"
+            >
+              <option value="teacher">Teacher</option>
+              <option value="principal">Principal</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-gray-700 mb-1">
+              {form.role === "teacher" ? "Email" : "Username"}
+            </label>
+            <input
+              type={form.role === "teacher" ? "email" : "text"}
+              name="identifier"
+              value={form.identifier}
+              onChange={handleChange}
+              placeholder={
+                form.role === "teacher"
+                  ? "Enter your email"
+                  : "Enter your username"
+              }
+              className="w-full border border-gray-300 rounded px-3 py-2"
               required
             />
           </div>
@@ -55,27 +91,14 @@ const Login = () => {
               value={form.password}
               onChange={handleChange}
               placeholder="Enter your password"
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full border border-gray-300 rounded px-3 py-2"
               required
             />
           </div>
 
-          <div>
-            <label className="block text-gray-700 mb-1">Role</label>
-            <select
-              name="role"
-              value={form.role}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            >
-              <option value="teacher">Teacher</option>
-              <option value="principal">Principal</option>
-            </select>
-          </div>
-
           <button
             type="submit"
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 rounded transition-colors"
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 rounded"
           >
             Login
           </button>

@@ -11,7 +11,7 @@ const getSection = (first_name) => {
   if ("MNOPQR".includes(firstChar)) return "C";
   if ("STUVWXYZ".includes(firstChar)) return "D";
 
-  return "D";
+  return "D"; // default fallback
 };
 
 const RegisterStudent = async (req, res) => {
@@ -51,20 +51,20 @@ const RegisterStudent = async (req, res) => {
       .json({ success: false, message: "Please provide all required student details" });
   }
   try {
-    const section = getSection(first_name);
-
     const classResult = await pool.query(
-      "SELECT class_id FROM classes WHERE class_name = $1 AND section=$2",
-      [class_number,section]
+      "SELECT class_id FROM classes WHERE class_name = $1",
+      [class_number]
     );
 
     if (classResult.rows.length === 0) {
       return res
         .status(404)
-        .json({ success: false, message: "Class not found or section" });
+        .json({ success: false, message: "Class not found" });
     }
 
     const class_id = classResult.rows[0].class_id;
+
+    const section = getSection(first_name);
 
     const selt = await bcrypt.genSalt(10);
     const secPassword = await bcrypt.hash(password, selt);
@@ -85,6 +85,7 @@ const RegisterStudent = async (req, res) => {
         section
       ]
     );
+    const sDetails = Student.rows[0];
     if (!Student || !Student.rows || Student.rows.length === 0) {
       return res
         .status(500)
