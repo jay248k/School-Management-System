@@ -81,9 +81,8 @@ const RegisterStudent = async (req, res) => {
       "12th": [17, 18],
     };
     const age = calculateAge(dob);
-    
+
     const ageRange = classAgeMap[class_number];
-    
     if (!ageRange) {
       return res.status(400).json({
         success: false,
@@ -120,9 +119,9 @@ const RegisterStudent = async (req, res) => {
     const Student = await pool.query(
       "INSERT INTO students (first_name,last_name,father_name,gender,dob,mobile,address,admission_date,status,class_id,password,section) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING *",
       [
-        first_name,
-        last_name,
-        father_name,
+        capitalizeName(first_name),
+        capitalizeName(last_name),
+        capitalizeName(father_name),
         gender,
         dob,
         mobile,
@@ -148,17 +147,23 @@ const RegisterStudent = async (req, res) => {
 };
 
 const StudLogin = async (req, res) => {
-  const { student_id, password } = req.body;
-  if (!student_id || !password) {
+  const { rollno, section, class_name, password } = req.body;
+  if (!rollno || !section || !class_name || !password) {
     return res.json({
       success: false,
       message: "Somthing details are missing",
     });
   }
   try {
+    const classResult = await pool.query("SELECT class_id from classes where class_name=$1", [class_name]);
+    if (classResult.rows.length === 0) {
+      return res.status(404).json({ success: false, message: "Class not found" });
+    }
+
+    const class_id = classResult.rows[0].class_id;
     const Student = await pool.query(
-      "SELECT * FROM students where student_id=$1",
-      [student_id]
+      "SELECT * FROM students where rollno=$1 AND section=$2 AND class_id=$3",
+      [rollno, section, class_id]
     );
     if (!Student.rowCount === 0) {
       res
@@ -258,4 +263,45 @@ const DeleteStudent = async (req, res) => {
   }
 
 }
-export { RegisterStudent, StudLogin, UpdateStudent, DeleteStudent };
+const RollnoCreater = async (req, res) => {
+  try {
+    // 1️ Get all classes
+    const classesResult = await pool.query("SELECT class_id, class_name FROM classes ORDER BY class_id");
+    const classes = classesResult.rows;
+
+    for (const cls of classes) {
+      const class_id = cls.class_id;
+
+      // 2️ Get all sections for this class
+      const sections = ['A', 'B', 'C', 'D'];
+
+      for (const section of sections) {
+        // 3️ Get students in this class & section, sorted by first_name
+        const studentsResult = await pool.query(
+          `SELECT student_id, first_name
+           FROM students
+           WHERE class_id = $1 AND section = $2
+           ORDER BY first_name ASC`,
+          [class_id, section]
+        );
+
+        // 4️ Assign roll numbers starting from 1 in this section
+        let rollNo = 1;
+        for (const student of studentsResult.rows) {
+          await pool.query(
+            "UPDATE students SET rollno = $1 WHERE student_id = $2",
+            [rollNo, student.student_id]
+          );
+          rollNo++;
+        }
+      }
+    }
+
+    return res.status(200).json({ success: true, message: "Roll numbers assigned successfully per section!" });
+  } catch (err) {
+    console.error("RollnoCreater error:", err?.message || err);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+export { RegisterStudent, StudLogin, UpdateStudent, DeleteStudent, RollnoCreater };
