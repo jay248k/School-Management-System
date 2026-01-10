@@ -13,6 +13,18 @@ const getSection = (first_name) => {
 
   return "D"; // default fallback
 };
+const calculateAge = (dob) => {
+  const birthDate = new Date(dob);
+  const today = new Date();
+
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const m = today.getMonth() - birthDate.getMonth();
+
+  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return age;
+};
 
 const RegisterStudent = async (req, res) => {
   if (!req.body || Object.keys(req.body).length === 0) {
@@ -51,6 +63,43 @@ const RegisterStudent = async (req, res) => {
       .json({ success: false, message: "Please provide all required student details" });
   }
   try {
+    const classAgeMap = {
+      Nursery: [3, 4],
+      "Pre-K": [4, 5],
+      Kindergarten: [5, 6],
+      "1st": [6, 7],
+      "2nd": [7, 8],
+      "3rd": [8, 9],
+      "4th": [9, 10],
+      "5th": [10, 11],
+      "6th": [11, 12],
+      "7th": [12, 13],
+      "8th": [13, 14],
+      "9th": [14, 15],
+      "10th": [15, 16],
+      "11th": [16, 17],
+      "12th": [17, 18],
+    };
+    const age = calculateAge(dob);
+    
+    const ageRange = classAgeMap[class_number];
+    
+    if (!ageRange) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid class selected",
+      });
+    }
+
+    const [minAge, maxAge] = ageRange;
+
+    if (age < minAge || age > maxAge) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid age for ${class_number}. Age must be between ${minAge} and ${maxAge} years.`,
+      });
+    }
+
     const classResult = await pool.query(
       "SELECT class_id FROM classes WHERE class_name = $1",
       [class_number]
