@@ -16,23 +16,10 @@ const AddStudent = () => {
     password: "",
   });
 
-  const getOrdinal = (n) => {
-  if (n % 100 >= 11 && n % 100 <= 13) return `${n}th`;
-  switch (n % 10) {
-    case 1: return `${n}st`;
-    case 2: return `${n}nd`;
-    case 3: return `${n}rd`;
-    default: return `${n}th`;
-  }
-};
-
-const classes = [
-  "Nursery",
-  "Pre-K",
-  "Kindergarten",
-  ...Array.from({ length: 12 }, (_, i) => getOrdinal(i + 1)),
-];
   const classes = [
+    "Nursery",
+    "Pre-K",
+    "Kindergarten",
     "1st",
     "2nd",
     "3rd",
@@ -51,8 +38,8 @@ const classes = [
     const { name, value } = e.target;
 
     if (name === "mobile") {
-      if (!/^\d*$/.test(value)) return; // allow only digits
-      if (value.length > 10) return; // max 10 digits
+      if (!/^\d*$/.test(value)) return;
+      if (value.length > 10) return;
     }
 
     setFormData({ ...formData, [name]: value });
@@ -99,7 +86,7 @@ const classes = [
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Name Section */}
+        {/* Name */}
         <div className="grid md:grid-cols-3 gap-5">
           <div>
             <label className={labelClass}>First Name</label>
@@ -192,7 +179,7 @@ const classes = [
           </div>
         </div>
 
-        {/* Admission Date & Status */}
+        {/* Admission & Status */}
         <div className="grid md:grid-cols-2 gap-5">
           <div>
             <label className={labelClass}>Admission Date</label>
@@ -253,7 +240,7 @@ const classes = [
           </div>
         </div>
 
-        {/* Submit Button */}
+        {/* Submit */}
         <div className="pt-4 flex justify-end">
           <button
             type="submit"
