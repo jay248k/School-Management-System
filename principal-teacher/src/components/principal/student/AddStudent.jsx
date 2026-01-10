@@ -11,7 +11,7 @@ const AddStudent = () => {
     mobile: "",
     address: "",
     admission_date: "",
-    status: "Active",
+    status: "active",
     class_number: "",
     password: "",
   });
@@ -32,13 +32,27 @@ const classes = [
   "Kindergarten",
   ...Array.from({ length: 12 }, (_, i) => getOrdinal(i + 1)),
 ];
+  const classes = [
+    "1st",
+    "2nd",
+    "3rd",
+    "4th",
+    "5th",
+    "6th",
+    "7th",
+    "8th",
+    "9th",
+    "10th",
+    "11th",
+    "12th",
+  ];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
 
     if (name === "mobile") {
-      if (!/^\d*$/.test(value)) return;
-      if (value.length > 10) return;
+      if (!/^\d*$/.test(value)) return; // allow only digits
+      if (value.length > 10) return; // max 10 digits
     }
 
     setFormData({ ...formData, [name]: value });
@@ -53,6 +67,7 @@ const classes = [
     }
 
     const res = await registerStudentAPI(formData);
+
     if (res) {
       setFormData({
         first_name: "",
@@ -69,9 +84,9 @@ const classes = [
       });
     }
   };
+
   const inputClass =
     "w-full border border-gray-300 rounded-lg px-5 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
-
   const labelClass = "text-base font-medium text-gray-700";
 
   return (
@@ -96,6 +111,7 @@ const classes = [
               className={inputClass}
             />
           </div>
+
           <div>
             <label className={labelClass}>Last Name</label>
             <input
@@ -106,6 +122,7 @@ const classes = [
               className={inputClass}
             />
           </div>
+
           <div>
             <label className={labelClass}>Father Name</label>
             <input
@@ -175,7 +192,7 @@ const classes = [
           </div>
         </div>
 
-        {/* Admission & Status */}
+        {/* Admission Date & Status */}
         <div className="grid md:grid-cols-2 gap-5">
           <div>
             <label className={labelClass}>Admission Date</label>
@@ -236,7 +253,7 @@ const classes = [
           </div>
         </div>
 
-        {/* Submit */}
+        {/* Submit Button */}
         <div className="pt-4 flex justify-end">
           <button
             type="submit"

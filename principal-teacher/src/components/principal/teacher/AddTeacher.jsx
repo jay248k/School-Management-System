@@ -4,6 +4,7 @@ import { addTeacherAPI } from "../../../services/teacher.api";
 const AddTeacher = () => {
   const [formData, setFormData] = useState({
     name: "",
+    email: "",
     mobile: "",
     qualification: "",
     joining_date: "",
@@ -11,18 +12,26 @@ const AddTeacher = () => {
   });
 
   const [mobileError, setMobileError] = useState("");
+  const [emailError, setEmailError] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
 
     if (name === "mobile") {
       if (!/^\d*$/.test(value)) return;
-
       if (value.length > 10) return;
 
       setMobileError(
         value.length > 0 && value.length < 10
           ? "Mobile number must be 10 digits"
+          : ""
+      );
+    }
+
+    if (name === "email") {
+      setEmailError(
+        value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+          ? "Invalid email address"
           : ""
       );
     }
@@ -38,12 +47,24 @@ const AddTeacher = () => {
       return;
     }
 
+    if (!formData.email || emailError) {
+      setEmailError("Please enter a valid email");
+      return;
+    }
+
     console.log("Teacher Data:", formData);
     const res = await addTeacherAPI(formData);
     if (res) {
-      alert("Done");
+      setFormData({
+        name: "",
+        email: "",
+        mobile: "",
+        qualification: "",
+        joining_date: "",
+        password: "",
+      });
     } else {
-      alert("chhi chhi ");
+      alert("Something went wrong!");
     }
   };
 
@@ -63,7 +84,7 @@ const AddTeacher = () => {
           onSubmit={handleSubmit}
           className="px-6 py-6 grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl"
         >
-          {/* Name */}
+          {/* Full Name */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Full Name
@@ -79,7 +100,7 @@ const AddTeacher = () => {
             />
           </div>
 
-          {/* Mobile */}
+          {/* Mobile Number */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Mobile Number
@@ -133,6 +154,29 @@ const AddTeacher = () => {
             />
           </div>
 
+          {/* Email */}
+          <div className="md:col-span-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Email
+            </label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Enter teacher email"
+              className={`w-full border rounded-md px-3 py-2 focus:ring-2 outline-none ${
+                emailError
+                  ? "border-red-400 focus:ring-red-400"
+                  : "border-gray-300 focus:ring-blue-500"
+              }`}
+              required
+            />
+            {emailError && (
+              <p className="text-xs text-red-500 mt-1">{emailError}</p>
+            )}
+          </div>
+
           {/* Password */}
           <div className="md:col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -149,7 +193,7 @@ const AddTeacher = () => {
             />
           </div>
 
-          {/* Action */}
+          {/* Submit */}
           <div className="md:col-span-2 flex justify-end pt-4">
             <button
               type="submit"
