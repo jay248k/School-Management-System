@@ -165,10 +165,10 @@ const StudLogin = async (req, res) => {
       "SELECT * FROM students where rollno=$1 AND section=$2 AND class_id=$3",
       [rollno, section, class_id]
     );
-    if (!Student.rowCount === 0) {
+    if (Student.rowCount === 0) {
       res
         .status(401)
-        .json({ success: false, message: "Invalid sid or password" });
+        .json({ success: false, message: "Invalid roll number, section, or class" });
     }
     const Details = Student.rows[0];
     const isMatch = await bcrypt.compare(password, Details.password);
