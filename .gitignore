@@ -7,3 +7,8 @@ backend/.env
 frontend/.env
 
 *.log
+
+student/node_modules
+principal-teacher/.env
+principal-teacher/node_modules
+student/.env
