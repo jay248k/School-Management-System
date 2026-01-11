@@ -7,6 +7,7 @@ import TeacherRouter from './Router/Teacher.Route.js';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import ClassRoute from './Router/Class.Route.js';
 dotenv.config();
 
 const app = express();
@@ -31,14 +32,15 @@ app.use("/api/student", StudentRouter);
 app.use("/api/fees", FeesRouter);
 app.use("/api/admin", AdminRouter);
 app.use("/api/teacher", TeacherRouter);
+app.use("/api/class", ClassRoute);
 
 app.get("/", (req, res) => {
     res.send("Backend is live");
 });
 
-app.use((req, res) => {
-    res.status(404).json({ message: "API not found" });
-});
+// app.use((req, res) => {
+//     res.status(404).json({ message: "API not found" });
+// });
 
 const PORT = 5000 || process.env.PORT;
 app.listen(PORT, () => {

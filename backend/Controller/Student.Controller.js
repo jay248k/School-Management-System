@@ -3,6 +3,15 @@ import pool from "../utils/db.js";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 dotenv.config();
+const capitalizeName = (name) => {
+  if (!name) return "";
+  return name
+    .toString()
+    .trim()
+    .toLowerCase()
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+};
+
 const getSection = (first_name) => {
   const firstChar = first_name.trim().charAt(0).toUpperCase();
 
@@ -26,126 +35,245 @@ const calculateAge = (dob) => {
   return age;
 };
 
+// const RegisterStudent = async (req, res) => {
+//   if (!req.body || Object.keys(req.body).length === 0) {
+//     return res
+//       .status(400)
+//       .json({ success: false, message: "Request body is empty" });
+//   }
+//   const {
+//     first_name,
+//     last_name,
+//     gender,
+//     dob,
+//     father_name,
+//     mobile,
+//     address,
+//     admission_date,
+//     status,
+//     class_number,
+//     password
+//   } = req.body;
+//   if (
+//     !first_name ||
+//     !last_name ||
+//     !gender ||
+//     !father_name ||
+//     !dob ||
+//     !mobile ||
+//     !address ||
+//     !admission_date ||
+//     !status ||
+//     !class_number ||
+//    !password
+//   ) {
+//     return res
+//       .status(400)
+//       .json({ success: false, message: "Please provide all required student details" });
+//   }
+//   try {
+//     const classAgeMap = {
+//       Nursery: [3, 4],
+//       "Pre-K": [4, 5],
+//       Kindergarten: [5, 6],
+//       "1st": [6, 7],
+//       "2nd": [7, 8],
+//       "3rd": [8, 9],
+//       "4th": [9, 10],
+//       "5th": [10, 11],
+//       "6th": [11, 12],
+//       "7th": [12, 13],
+//       "8th": [13, 14],
+//       "9th": [14, 15],
+//       "10th": [15, 16],
+//       "11th": [16, 17],
+//       "12th": [17, 18],
+//     };
+//     const age = calculateAge(dob);
+
+//     const ageRange = classAgeMap[class_number];
+
+//     if (!ageRange) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Invalid class selected",
+//       });
+//     }
+
+//     const [minAge, maxAge] = ageRange;
+
+//     if (age < minAge || age > maxAge) {
+//       return res.status(400).json({
+//         success: false,
+//         message: `Invalid age for ${class_number}. Age must be between ${minAge} and ${maxAge} years.`,
+//       });
+//     }
+//     const section = getSection(first_name);
+//     const classResult = await pool.query(
+//       "SELECT class_id FROM classes WHERE class_name = $1 AND section=$2",
+//       [class_number,section]
+//     );
+
+//     if (classResult.rows.length === 0) {
+//       return res
+//         .status(404)
+//         .json({ success: false, message: "Class not found" });
+//     }
+
+//     const class_id = classResult.rows[0].class_id;
+
+    
+
+//     const selt = await bcrypt.genSalt(10);
+//     const secPassword = await bcrypt.hash(password, selt);
+//     const Student = await pool.query(
+//       "INSERT INTO students (first_name,last_name,father_name,gender,dob,mobile,address,admission_date,status,class_id,password) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *",
+//       [
+//         capitalizeName(first_name),
+//         capitalizeName(last_name),
+//         capitalizeName(father_name),
+//         gender,
+//         dob,
+//         mobile,
+//         address,
+//         admission_date,
+//         status,
+//         class_id,
+//         secPassword
+//       ]
+//     );
+//     const sDetails = Student.rows[0];
+//     if (!Student || !Student.rows || Student.rows.length === 0) {
+//       return res
+//         .status(500)
+//         .json({ success: false, message: "Failed to create student" });
+//     }
+//     return res.status(201).json({ success: true, message: "Student created!" });
+//   } catch (err) {
+//     console.error("RegisterStudent error:", err?.message || err);
+//     return res.status(500).json({ success: false, message: "Server error" });
+//   }
+// };
 const RegisterStudent = async (req, res) => {
-  if (!req.body || Object.keys(req.body).length === 0) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Request body is empty" });
+  if (!req.body || (Array.isArray(req.body) && req.body.length === 0)) {
+    return res.status(400).json({ success: false, message: "Request body is empty" });
   }
-  const {
-    first_name,
-    last_name,
-    gender,
-    dob,
-    father_name,
-    mobile,
-    address,
-    admission_date,
-    status,
-    class_number,
-    password,
-  } = req.body;
-  if (
-    !first_name ||
-    !last_name ||
-    !gender ||
-    !father_name ||
-    !dob ||
-    !mobile ||
-    !address ||
-    !admission_date ||
-    !status ||
-    !class_number ||
-    !password
-  ) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Please provide all required student details" });
-  }
+
+  const students = Array.isArray(req.body) ? req.body : [req.body];
+  const classAgeMap = {
+    Nursery: [3, 4],
+    "Pre-K": [4, 5],
+    Kindergarten: [5, 6],
+    "1st": [6, 7],
+    "2nd": [7, 8],
+    "3rd": [8, 9],
+    "4th": [9, 10],
+    "5th": [10, 11],
+    "6th": [11, 12],
+    "7th": [12, 13],
+    "8th": [13, 14],
+    "9th": [14, 15],
+    "10th": [15, 16],
+    "11th": [16, 17],
+    "12th": [17, 18],
+  };
+
   try {
-    const classAgeMap = {
-      Nursery: [3, 4],
-      "Pre-K": [4, 5],
-      Kindergarten: [5, 6],
-      "1st": [6, 7],
-      "2nd": [7, 8],
-      "3rd": [8, 9],
-      "4th": [9, 10],
-      "5th": [10, 11],
-      "6th": [11, 12],
-      "7th": [12, 13],
-      "8th": [13, 14],
-      "9th": [14, 15],
-      "10th": [15, 16],
-      "11th": [16, 17],
-      "12th": [17, 18],
-    };
-    const age = calculateAge(dob);
+    const results = [];
 
-    const ageRange = classAgeMap[class_number];
-    if (!ageRange) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid class selected",
-      });
-    }
-
-    const [minAge, maxAge] = ageRange;
-
-    if (age < minAge || age > maxAge) {
-      return res.status(400).json({
-        success: false,
-        message: `Invalid age for ${class_number}. Age must be between ${minAge} and ${maxAge} years.`,
-      });
-    }
-
-    const classResult = await pool.query(
-      "SELECT class_id FROM classes WHERE class_name = $1",
-      [class_number]
-    );
-
-    if (classResult.rows.length === 0) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Class not found" });
-    }
-
-    const class_id = classResult.rows[0].class_id;
-
-    const section = getSection(first_name);
-
-    const selt = await bcrypt.genSalt(10);
-    const secPassword = await bcrypt.hash(password, selt);
-    const Student = await pool.query(
-      "INSERT INTO students (first_name,last_name,father_name,gender,dob,mobile,address,admission_date,status,class_id,password,section) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING *",
-      [
-        capitalizeName(first_name),
-        capitalizeName(last_name),
-        capitalizeName(father_name),
+    for (const student of students) {
+      const {
+        first_name,
+        last_name,
         gender,
         dob,
+        father_name,
         mobile,
         address,
         admission_date,
         status,
-        class_id,
-        secPassword,
-        section
-      ]
-    );
-    const sDetails = Student.rows[0];
-    if (!Student || !Student.rows || Student.rows.length === 0) {
-      return res
-        .status(500)
-        .json({ success: false, message: "Failed to create student" });
+        class_number,
+        password,
+      } = student;
+
+      // Validation
+      if (
+        !first_name ||
+        !last_name ||
+        !gender ||
+        !father_name ||
+        !dob ||
+        !mobile ||
+        !address ||
+        !admission_date ||
+        !status ||
+        !class_number ||
+        !password
+      ) {
+        results.push({ student, success: false, message: "Missing required fields" });
+        continue;
+      }
+
+      // Age check
+      const age = calculateAge(dob);
+      const ageRange = classAgeMap[class_number];
+      if (!ageRange) {
+        results.push({ student, success: false, message: "Invalid class selected" });
+        continue;
+      }
+      const [minAge, maxAge] = ageRange;
+      if (age < minAge || age > maxAge) {
+        results.push({
+          student,
+          success: false,
+          message: `Invalid age for ${class_number}. Age must be between ${minAge} and ${maxAge}`,
+        });
+        continue;
+      }
+
+      // Section & Class ID
+      const section = getSection(first_name);
+      const classResult = await pool.query(
+        "SELECT class_id FROM classes WHERE class_name = $1 AND section = $2",
+        [class_number, section]
+      );
+      if (classResult.rows.length === 0) {
+        results.push({ student, success: false, message: "Class not found" });
+        continue;
+      }
+      const class_id = classResult.rows[0].class_id;
+
+      // Password hashing
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
+
+      // Insert student
+      const dbResult = await pool.query(
+        "INSERT INTO students (first_name,last_name,father_name,gender,dob,mobile,address,admission_date,status,class_id,password) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *",
+        [
+          capitalizeName(first_name),
+          capitalizeName(last_name),
+          capitalizeName(father_name),
+          gender,
+          dob,
+          mobile,
+          address,
+          admission_date,
+          status,
+          class_id,
+          hashedPassword,
+        ]
+      );
+
+      results.push({ student: dbResult.rows[0], success: true });
     }
-    return res.status(201).json({ success: true, message: "Student created!" });
+
+    return res.status(201).json({ success: true, results });
   } catch (err) {
     console.error("RegisterStudent error:", err?.message || err);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
-
 const StudLogin = async (req, res) => {
   const { rollno, section, class_name, password } = req.body;
   if (!rollno || !section || !class_name || !password) {
@@ -265,43 +393,43 @@ const DeleteStudent = async (req, res) => {
 }
 const RollnoCreater = async (req, res) => {
   try {
-    // 1️ Get all classes
-    const classesResult = await pool.query("SELECT class_id, class_name FROM classes ORDER BY class_id");
-    const classes = classesResult.rows;
+    // 1️⃣ Get all classes
+    const classesResult = await pool.query(
+      "SELECT class_id, class_name FROM classes ORDER BY class_id"
+    );
 
-    for (const cls of classes) {
+    for (const cls of classesResult.rows) {
       const class_id = cls.class_id;
 
-      // 2️ Get all sections for this class
-      const sections = ['A', 'B', 'C', 'D'];
+      // 2️⃣ Get students of this class (NO section)
+      const studentsResult = await pool.query(
+        `SELECT student_id, first_name
+         FROM students
+         WHERE class_id = $1
+         ORDER BY first_name ASC`,
+        [class_id]
+      );
 
-      for (const section of sections) {
-        // 3️ Get students in this class & section, sorted by first_name
-        const studentsResult = await pool.query(
-          `SELECT student_id, first_name
-           FROM students
-           WHERE class_id = $1 AND section = $2
-           ORDER BY first_name ASC`,
-          [class_id, section]
+      // 3️⃣ Assign roll numbers per class
+      let rollNo = 1;
+      for (const student of studentsResult.rows) {
+        await pool.query(
+          "UPDATE students SET rollno = $1 WHERE student_id = $2",
+          [rollNo, student.student_id]
         );
-
-        // 4️ Assign roll numbers starting from 1 in this section
-        let rollNo = 1;
-        for (const student of studentsResult.rows) {
-          await pool.query(
-            "UPDATE students SET rollno = $1 WHERE student_id = $2",
-            [rollNo, student.student_id]
-          );
-          rollNo++;
-        }
+        rollNo++;
       }
     }
 
-    return res.status(200).json({ success: true, message: "Roll numbers assigned successfully per section!" });
+    return res.status(200).json({
+      success: true,
+      message: "Roll numbers assigned successfully per class!",
+    });
   } catch (err) {
     console.error("RollnoCreater error:", err?.message || err);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
+
 
 export { RegisterStudent, StudLogin, UpdateStudent, DeleteStudent, RollnoCreater };
