@@ -18,7 +18,7 @@ const TeacherDashboard = () => {
     {
       name: "Classes",
       subLinks: [
-        { name: "My Classes", link: "/teacher/classes" },
+        { name: "My Class", link: "/teacher/my-class" },
         { name: "Assignments", link: "/teacher/assignments" },
       ],
     },
