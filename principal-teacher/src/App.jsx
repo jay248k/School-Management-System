@@ -9,6 +9,8 @@ import PrincipalDashboard from "./components/principal/PrincipalDashboard";
 import AddStudent from "./components/principal/student/AddStudent";
 import AddTeacher from "./components/principal/teacher/AddTeacher";
 import TeacherDashboard from "./components/teacher/TeacherDashboard";
+import TakeAttendance from "./components/teacher/students/TakeAttendance";
+import MyClass from "./components/teacher/students/MyClass";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -25,6 +27,10 @@ const router = createBrowserRouter([
   {
     path: "/teacher",
     element: <TeacherDashboard />,
+    children: [
+      { path: "attendance", element: <TakeAttendance /> },
+      { path: "my-class", element: <MyClass /> },
+    ],
   },
 ]);
 
