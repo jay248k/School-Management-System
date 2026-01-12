@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { teacherFetchClassAPI } from "../../../services/class.api";
 
 const classOptions = [
   "Nursery",
@@ -20,7 +21,6 @@ const classOptions = [
 
 const sectionOptions = ["A", "B", "C", "D"];
 
-// 60 dummy roll numbers
 const dummyRollNumbers = Array.from({ length: 60 }, (_, i) => i + 1);
 
 const TakeAttendance = () => {
@@ -30,11 +30,13 @@ const TakeAttendance = () => {
   const [rollNumbers, setRollNumbers] = useState([]);
   const [presentRolls, setPresentRolls] = useState([]);
 
-  const handleGetDetails = () => {
+  const handleGetDetails = async () => {
     if (!selectedClass || !selectedSection || !selectedDate) {
       alert("Please select class, section and date");
       return;
     }
+    const res = await teacherFetchClassAPI(selectedClass, selectedSection);
+    console.log(res);
     setRollNumbers(dummyRollNumbers);
     setPresentRolls([]);
   };
