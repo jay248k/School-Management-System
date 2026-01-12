@@ -11,6 +11,7 @@ import AddTeacher from "./components/principal/teacher/AddTeacher";
 import TeacherDashboard from "./components/teacher/TeacherDashboard";
 import TakeAttendance from "./components/teacher/students/TakeAttendance";
 import MyClass from "./components/teacher/students/MyClass";
+import StudentList from "./components/teacher/students/StudentList";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -30,6 +31,7 @@ const router = createBrowserRouter([
     children: [
       { path: "attendance", element: <TakeAttendance /> },
       { path: "my-class", element: <MyClass /> },
+      { path: "students", element: <StudentList /> },
     ],
   },
 ]);

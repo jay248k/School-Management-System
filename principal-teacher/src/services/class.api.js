@@ -20,7 +20,6 @@ export const teacherFetchClassAPI = async (class_name, section) => {
       return false;
     }
   } catch (error) {
-
     const message =
       error?.response?.data?.message ||
       error?.message ||
