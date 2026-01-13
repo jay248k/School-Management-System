@@ -65,4 +65,4 @@ const AdminLogin = async (req, res) => {
 
 export default AdminLogin;
 
-export { AdminLogin };
+export { AdminLogin};

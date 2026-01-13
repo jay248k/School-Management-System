@@ -35,245 +35,245 @@ const calculateAge = (dob) => {
   return age;
 };
 
-// const RegisterStudent = async (req, res) => {
-//   if (!req.body || Object.keys(req.body).length === 0) {
-//     return res
-//       .status(400)
-//       .json({ success: false, message: "Request body is empty" });
-//   }
-//   const {
-//     first_name,
-//     last_name,
-//     gender,
-//     dob,
-//     father_name,
-//     mobile,
-//     address,
-//     admission_date,
-//     status,
-//     class_number,
-//     password
-//   } = req.body;
-//   if (
-//     !first_name ||
-//     !last_name ||
-//     !gender ||
-//     !father_name ||
-//     !dob ||
-//     !mobile ||
-//     !address ||
-//     !admission_date ||
-//     !status ||
-//     !class_number ||
-//    !password
-//   ) {
-//     return res
-//       .status(400)
-//       .json({ success: false, message: "Please provide all required student details" });
-//   }
-//   try {
-//     const classAgeMap = {
-//       Nursery: [3, 4],
-//       "Pre-K": [4, 5],
-//       Kindergarten: [5, 6],
-//       "1st": [6, 7],
-//       "2nd": [7, 8],
-//       "3rd": [8, 9],
-//       "4th": [9, 10],
-//       "5th": [10, 11],
-//       "6th": [11, 12],
-//       "7th": [12, 13],
-//       "8th": [13, 14],
-//       "9th": [14, 15],
-//       "10th": [15, 16],
-//       "11th": [16, 17],
-//       "12th": [17, 18],
-//     };
-//     const age = calculateAge(dob);
-
-//     const ageRange = classAgeMap[class_number];
-
-//     if (!ageRange) {
-//       return res.status(400).json({
-//         success: false,
-//         message: "Invalid class selected",
-//       });
-//     }
-
-//     const [minAge, maxAge] = ageRange;
-
-//     if (age < minAge || age > maxAge) {
-//       return res.status(400).json({
-//         success: false,
-//         message: `Invalid age for ${class_number}. Age must be between ${minAge} and ${maxAge} years.`,
-//       });
-//     }
-//     const section = getSection(first_name);
-//     const classResult = await pool.query(
-//       "SELECT class_id FROM classes WHERE class_name = $1 AND section=$2",
-//       [class_number,section]
-//     );
-
-//     if (classResult.rows.length === 0) {
-//       return res
-//         .status(404)
-//         .json({ success: false, message: "Class not found" });
-//     }
-
-//     const class_id = classResult.rows[0].class_id;
-
-    
-
-//     const selt = await bcrypt.genSalt(10);
-//     const secPassword = await bcrypt.hash(password, selt);
-//     const Student = await pool.query(
-//       "INSERT INTO students (first_name,last_name,father_name,gender,dob,mobile,address,admission_date,status,class_id,password) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *",
-//       [
-//         capitalizeName(first_name),
-//         capitalizeName(last_name),
-//         capitalizeName(father_name),
-//         gender,
-//         dob,
-//         mobile,
-//         address,
-//         admission_date,
-//         status,
-//         class_id,
-//         secPassword
-//       ]
-//     );
-//     const sDetails = Student.rows[0];
-//     if (!Student || !Student.rows || Student.rows.length === 0) {
-//       return res
-//         .status(500)
-//         .json({ success: false, message: "Failed to create student" });
-//     }
-//     return res.status(201).json({ success: true, message: "Student created!" });
-//   } catch (err) {
-//     console.error("RegisterStudent error:", err?.message || err);
-//     return res.status(500).json({ success: false, message: "Server error" });
-//   }
-// };
 const RegisterStudent = async (req, res) => {
-  if (!req.body || (Array.isArray(req.body) && req.body.length === 0)) {
-    return res.status(400).json({ success: false, message: "Request body is empty" });
+  if (!req.body || Object.keys(req.body).length === 0) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Request body is empty" });
   }
-
-  const students = Array.isArray(req.body) ? req.body : [req.body];
-  const classAgeMap = {
-    Nursery: [3, 4],
-    "Pre-K": [4, 5],
-    Kindergarten: [5, 6],
-    "1st": [6, 7],
-    "2nd": [7, 8],
-    "3rd": [8, 9],
-    "4th": [9, 10],
-    "5th": [10, 11],
-    "6th": [11, 12],
-    "7th": [12, 13],
-    "8th": [13, 14],
-    "9th": [14, 15],
-    "10th": [15, 16],
-    "11th": [16, 17],
-    "12th": [17, 18],
-  };
-
+  const {
+    first_name,
+    last_name,
+    gender,
+    dob,
+    father_name,
+    mobile,
+    address,
+    admission_date,
+    status,
+    class_number,
+    password
+  } = req.body;
+  if (
+    !first_name ||
+    !last_name ||
+    !gender ||
+    !father_name ||
+    !dob ||
+    !mobile ||
+    !address ||
+    !admission_date ||
+    !status ||
+    !class_number ||
+    !password
+  ) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Please provide all required student details" });
+  }
   try {
-    const results = [];
+    const classAgeMap = {
+      Nursery: [3, 4],
+      "Pre-K": [4, 5],
+      Kindergarten: [5, 6],
+      "1st": [6, 7],
+      "2nd": [7, 8],
+      "3rd": [8, 9],
+      "4th": [9, 10],
+      "5th": [10, 11],
+      "6th": [11, 12],
+      "7th": [12, 13],
+      "8th": [13, 14],
+      "9th": [14, 15],
+      "10th": [15, 16],
+      "11th": [16, 17],
+      "12th": [17, 18],
+    };
+    const age = calculateAge(dob);
 
-    for (const student of students) {
-      const {
-        first_name,
-        last_name,
+    const ageRange = classAgeMap[class_number];
+
+    if (!ageRange) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid class selected",
+      });
+    }
+
+    const [minAge, maxAge] = ageRange;
+
+    if (age < minAge || age > maxAge) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid age for ${class_number}. Age must be between ${minAge} and ${maxAge} years.`,
+      });
+    }
+    const section = getSection(first_name);
+    const classResult = await pool.query(
+      "SELECT class_id FROM classes WHERE class_name = $1 AND section=$2",
+      [class_number, section]
+    );
+
+    if (classResult.rows.length === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Class not found" });
+    }
+
+    const class_id = classResult.rows[0].class_id;
+
+
+
+    const selt = await bcrypt.genSalt(10);
+    const secPassword = await bcrypt.hash(password, selt);
+    const Student = await pool.query(
+      "INSERT INTO students (first_name,last_name,father_name,gender,dob,mobile,address,admission_date,status,class_id,password) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *",
+      [
+        capitalizeName(first_name),
+        capitalizeName(last_name),
+        capitalizeName(father_name),
         gender,
         dob,
-        father_name,
         mobile,
         address,
         admission_date,
         status,
-        class_number,
-        password,
-      } = student;
-
-      // Validation
-      if (
-        !first_name ||
-        !last_name ||
-        !gender ||
-        !father_name ||
-        !dob ||
-        !mobile ||
-        !address ||
-        !admission_date ||
-        !status ||
-        !class_number ||
-        !password
-      ) {
-        results.push({ student, success: false, message: "Missing required fields" });
-        continue;
-      }
-
-      // Age check
-      const age = calculateAge(dob);
-      const ageRange = classAgeMap[class_number];
-      if (!ageRange) {
-        results.push({ student, success: false, message: "Invalid class selected" });
-        continue;
-      }
-      const [minAge, maxAge] = ageRange;
-      if (age < minAge || age > maxAge) {
-        results.push({
-          student,
-          success: false,
-          message: `Invalid age for ${class_number}. Age must be between ${minAge} and ${maxAge}`,
-        });
-        continue;
-      }
-
-      // Section & Class ID
-      const section = getSection(first_name);
-      const classResult = await pool.query(
-        "SELECT class_id FROM classes WHERE class_name = $1 AND section = $2",
-        [class_number, section]
-      );
-      if (classResult.rows.length === 0) {
-        results.push({ student, success: false, message: "Class not found" });
-        continue;
-      }
-      const class_id = classResult.rows[0].class_id;
-
-      // Password hashing
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(password, salt);
-
-      // Insert student
-      const dbResult = await pool.query(
-        "INSERT INTO students (first_name,last_name,father_name,gender,dob,mobile,address,admission_date,status,class_id,password) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *",
-        [
-          capitalizeName(first_name),
-          capitalizeName(last_name),
-          capitalizeName(father_name),
-          gender,
-          dob,
-          mobile,
-          address,
-          admission_date,
-          status,
-          class_id,
-          hashedPassword,
-        ]
-      );
-
-      results.push({ student: dbResult.rows[0], success: true });
+        class_id,
+        secPassword
+      ]
+    );
+    const sDetails = Student.rows[0];
+    if (!Student || !Student.rows || Student.rows.length === 0) {
+      return res
+        .status(500)
+        .json({ success: false, message: "Failed to create student" });
     }
-
-    return res.status(201).json({ success: true, results });
+    return res.status(201).json({ success: true, message: "Student created!" });
   } catch (err) {
     console.error("RegisterStudent error:", err?.message || err);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
+// const RegisterStudent = async (req, res) => {
+//   if (!req.body || (Array.isArray(req.body) && req.body.length === 0)) {
+//     return res.status(400).json({ success: false, message: "Request body is empty" });
+//   }
+
+//   const students = Array.isArray(req.body) ? req.body : [req.body];
+//   const classAgeMap = {
+//     Nursery: [3, 4],
+//     "Pre-K": [4, 5],
+//     Kindergarten: [5, 6],
+//     "1st": [6, 7],
+//     "2nd": [7, 8],
+//     "3rd": [8, 9],
+//     "4th": [9, 10],
+//     "5th": [10, 11],
+//     "6th": [11, 12],
+//     "7th": [12, 13],
+//     "8th": [13, 14],
+//     "9th": [14, 15],
+//     "10th": [15, 16],
+//     "11th": [16, 17],
+//     "12th": [17, 18],
+//   };
+
+//   try {
+//     const results = [];
+
+//     for (const student of students) {
+//       const {
+//         first_name,
+//         last_name,
+//         gender,
+//         dob,
+//         father_name,
+//         mobile,
+//         address,
+//         admission_date,
+//         status,
+//         class_number,
+//         password,
+//       } = student;
+
+//       // Validation
+//       if (
+//         !first_name ||
+//         !last_name ||
+//         !gender ||
+//         !father_name ||
+//         !dob ||
+//         !mobile ||
+//         !address ||
+//         !admission_date ||
+//         !status ||
+//         !class_number ||
+//         !password
+//       ) {
+//         results.push({ student, success: false, message: "Missing required fields" });
+//         continue;
+//       }
+
+//       // Age check
+//       const age = calculateAge(dob);
+//       const ageRange = classAgeMap[class_number];
+//       if (!ageRange) {
+//         results.push({ student, success: false, message: "Invalid class selected" });
+//         continue;
+//       }
+//       const [minAge, maxAge] = ageRange;
+//       if (age < minAge || age > maxAge) {
+//         results.push({
+//           student,
+//           success: false,
+//           message: `Invalid age for ${class_number}. Age must be between ${minAge} and ${maxAge}`,
+//         });
+//         continue;
+//       }
+
+//       // Section & Class ID
+//       const section = getSection(first_name);
+//       const classResult = await pool.query(
+//         "SELECT class_id FROM classes WHERE class_name = $1 AND section = $2",
+//         [class_number, section]
+//       );
+//       if (classResult.rows.length === 0) {
+//         results.push({ student, success: false, message: "Class not found" });
+//         continue;
+//       }
+//       const class_id = classResult.rows[0].class_id;
+
+//       // Password hashing
+//       const salt = await bcrypt.genSalt(10);
+//       const hashedPassword = await bcrypt.hash(password, salt);
+
+//       // Insert student
+//       const dbResult = await pool.query(
+//         "INSERT INTO students (first_name,last_name,father_name,gender,dob,mobile,address,admission_date,status,class_id,password) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *",
+//         [
+//           capitalizeName(first_name),
+//           capitalizeName(last_name),
+//           capitalizeName(father_name),
+//           gender,
+//           dob,
+//           mobile,
+//           address,
+//           admission_date,
+//           status,
+//           class_id,
+//           hashedPassword,
+//         ]
+//       );
+
+//       results.push({ student: dbResult.rows[0], success: true });
+//     }
+
+//     return res.status(201).json({ success: true, results });
+//   } catch (err) {
+//     console.error("RegisterStudent error:", err?.message || err);
+//     return res.status(500).json({ success: false, message: "Server error" });
+//   }
+// };
 const StudLogin = async (req, res) => {
   const { rollno, section, class_name, password } = req.body;
   if (!rollno || !section || !class_name || !password) {
@@ -431,5 +431,52 @@ const RollnoCreater = async (req, res) => {
   }
 };
 
+const markAttendance = async (req, res) => {
+  const { class_name, section, presentRollNos } = req.body;
 
-export { RegisterStudent, StudLogin, UpdateStudent, DeleteStudent, RollnoCreater };
+  try {
+    // Normalize present roll numbers to Number
+    const normalizedRollNos = presentRollNos.map(Number);
+
+    // Fetch students with class_id
+    const studentsResult = await pool.query(
+      `SELECT s.student_id, s.rollno, s.class_id
+       FROM students s
+       JOIN classes c ON s.class_id = c.class_id
+       WHERE c.class_name = $1 AND c.section = $2`,
+      [class_name, section]
+    );
+
+    if (studentsResult.rowCount === 0) {
+      return res.status(404).json({ message: "No students found" });
+    }
+
+    // Insert / Update attendance
+    for (const student of studentsResult.rows) {
+      const rollNo = Number(student.rollno); // ✅ inside loop
+      const status = normalizedRollNos.includes(rollNo) ? "P" : "A";
+
+      const resultData =await pool.query(
+        `INSERT INTO attendance (student_id, class_id, date, status)
+         VALUES ($1, $2, CURRENT_DATE, $3)
+         ON CONFLICT (student_id, class_id, date)
+         DO UPDATE SET status = EXCLUDED.status RETURNING *`,
+        [student.student_id, student.class_id, status]
+      );
+    }
+    console.log("Inserted:", resultData.rows);
+    res.status(200).json({
+      message: "Attendance marked successfully",
+      date: new Date().toISOString().split("T")[0]
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error marking attendance" });
+  }
+};
+
+
+
+
+export { RegisterStudent, StudLogin, UpdateStudent, DeleteStudent, RollnoCreater, markAttendance };
