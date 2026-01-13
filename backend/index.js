@@ -16,7 +16,7 @@ const app = express();
 const corsOptions = {
     origin: [
         "http://localhost:5173",
-        "https://your-frontend-domain.onrender.com"
+        "https://captivating-essence-production.up.railway.app"
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
